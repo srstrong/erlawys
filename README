@@ -1,0 +1,125 @@
+erlawys 0.1                                               August 16, 2007
+
+INTRODUCTION
+------------
+erlawys is an implementation of the Amazon Web Services API (AWS) in
+erlang. erl + AWS = erlawys (pronounced erlways).
+
+It currently implements the following APIs that amazon offers.
+ec2: Elastic Compute Cloud (2007-03-01)
+fps: Flexible Payments Service (2007-01-08) [USE AT YOUR OWN RISK!]
+s3 : NOT IMPLEMENTED
+sqs: NOT IMPLEMENTED
+
+The current version is 0.1. It is not production ready and has undergone
+minimal testing. In particular ec2 has only undergone rudimentary testing
+(as expressed by aws_ec2_test) and fps has undergone NO testing.
+
+DEPENDENCIES
+------------
+erlawys uses ERLSOM to generate the .hrl files from the .xml files. It also
+uses ERLSOM to parse the xml that is returned by AWS and transforms it into 
+records that conform the the .hrl files.
+
+ISSUES
+------
+One issue that came up was that often times the AWS result would come back
+with an error. Often the error would occur several times in a row. In order
+to overcome this issue I added a function called try_again/3, which will
+attempt to execute the given function Count times. Count defaults to 100.
+
+If you see the following during an execution run:
+
+Failed in calling #Fun<aws_ec2_test.11.55025291> on count 100
+Failed in calling #Fun<aws_ec2_test.11.55025291> on count 99
+...
+
+then you know the attempt to get information from AWS failed, and another
+attempt was made.
+
+If anyone knows why this is happening or how to fix it, let me know.
+
+HOW WAS THIS DONE
+-----------------
+I basically created a database that contains the AWS documentation. I then
+used this database and ANTLR 3.0 to generate the erlang code. So most of the
+code is generated from the database. Errors in the code, are more likely errors
+in my database, or my code generation.
+
+This is why I have the FPS API implemented. But I have not tested it as I
+don't have an FPS account yet. But I thought since I could generate the code
+I might as well include it.
+
+TRY ME
+------
+In order to try this out you need to download the code and run the
+Makefile. In addition you will need an amazon AWS account.
+
+Once you have an account you must find out what your Secret Key and 
+Access Key are. Go to https://aws-portal.amazon.com and mouse over the
+"Your Web Services Account" button. It should pop up a small dialog box. Click
+on "AWS Access Identifiers".
+
+In the trace below, Key is your "Secret Access Key" and Access is your
+"Access Key ID".
+
+Once you have compiled the source and gotten your AWS keys, execute the erlang
+interpreter (erl).
+
+$ cd ~/projects/erlawys/trunk/src
+$ make
+erlc -W aws_util.erl
+erlc -W aws_ec2_xml.erl
+erlc -W aws_ec2.erl
+erlc -W aws_ec2_test.erl
+./aws_ec2_test.erl:277: Warning: function extract_pending/1 is unused
+erlc -W aws_fps_xml.erl
+erlc -W aws_fps.erl
+$ erl
+Erlang (BEAM) emulator version 5.5.5 [source] [async-threads:0] [kernel-poll:false]
+
+Eshell V5.5.5  (abort with ^G)
+1> Key = "...".        % Your amazon Secret Access Key.
+"..."
+2> AccessKey = "...".  % Your amazon Access Key ID.
+"..."
+3> Model = aws_ec2_test:init_tests().
+{model,[{type,'_document',
+              sequence,
+              [{el,[{alt,'ec2:ConfirmProductInstanceResponse',
+...
+4> aws_ec2_test:test_simple(Key, AccessKey, Model).
+Attempting to Launch first instance: "ami-23b6534a"
+Launched first instance {ok,
+                         {'ec2:ReservationInfoType',
+...
+Done!
+
+FUTURE
+------
+For future implementations I would like to implement the S3 and SQS APIs. However,
+there is already some work that has gone into merging S3 and mnesia. Its not clear
+if this will become available to the larger community, but I thought I would wait
+and see before I did anything. Of course if anyone else has implemented these APIs
+I would be happy to include them.
+
+I would like to add a layer on top of the aws_ec2/fps APIs. They are pretty
+rudimentary and use ERLSOM to make things easier. However, I think it would be
+nice to abstract it some more, so we don't have to deal with XML style records.
+Something simpler would be nice.
+
+LICENSE
+-------
+This is licensed under the University of Illinois/NCSA Open Source License, with
+my name instead of NCSA. This is basically the same as the New BSD license as
+far as I can tell. See http://www.opensource.org/licenses/UoI-NCSA.php.
+
+If people object to this license I will consider switching it to the New BSD
+license. I just used this one because I used to work at NCSA.
+
+CONTACT INFO
+------------
+If you find any bugs, issues, errors, or you have questions or suggestions please
+let me know at bernied at gmail dot com.
+
+_bernhard
