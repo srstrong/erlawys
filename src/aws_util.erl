@@ -44,7 +44,6 @@
 %-compile(export_all).
 -export([filter_nulls/1, 
 		params_signature/2, 
-		replace_colons/1,
 		add_default_params/3,
 		create_ec2_param_list/2,
 		tuple_3to2/1]).
@@ -63,15 +62,10 @@ sort_params(Params) -> lists:sort(fun({A, _}, {X, _}) -> to_lower(A) < to_lower(
 
 % Make sure you call crypto:start() before using this code.
 params_signature(Key, Params) -> params_signature(Key, sort_params(Params), []).
-%params_signature(Key, [{_, null}|T], Data) -> params_signature(Key, T, Data);
 params_signature(Key, [{K, V}|T], Data) -> params_signature(Key, T, [V,K|Data]);
-params_signature(Key, [], Data) -> Signature = lists:flatten(lists:reverse(Data)), base64:encode(crypto:sha_mac(Key, Signature)).
-
-% Replace ':' with %3A for the URL's to be legal.
-replace_colons([$:|T]) -> [$%, $3, $A|replace_colons(T)];
-replace_colons([H|T]) -> [H|replace_colons(T)];
-replace_colons([]) -> [];
-replace_colons(X) -> X.
+params_signature(Key, [], Data) ->
+    Signature = lists:flatten(lists:reverse(Data)), 
+    base64:encode_to_string(crypto:sha_mac(Key, Signature)).
 
 % Add default values to list.
 %add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, "2007-03-01").

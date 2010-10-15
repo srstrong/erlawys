@@ -82,10 +82,10 @@
 ec2_url(Key, Params) ->
 	NoNullParams = filter_nulls(Params),
 	?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []).
-%ec2_url(Key, Params) -> Url = ?EC2_BASE_URL ++ ec2_url_1(lists:reverse(Params), []), io:format("~p", Url), Url.
 
-ec2_url_1([{K, V}], Data) -> ec2_url_1([], ["?", K, "=", replace_colons(V) | Data]);
-ec2_url_1([{K, V}|T], Data) -> ec2_url_1(T, ["&", K, "=", replace_colons(V) | Data]);
+
+ec2_url_1([{K, V}], Data) -> ec2_url_1([], ["?", K, "=", edoc_lib:escape_uri(V) | Data]);
+ec2_url_1([{K, V}|T], Data) -> ec2_url_1(T, ["&", K, "=", edoc_lib:escape_uri(V) | Data]);
 ec2_url_1([], Data) -> lists:flatten(Data).
 
 add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, ?VERSION).
