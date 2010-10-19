@@ -56,7 +56,8 @@
 	 deregister_image/3,	
 	 describe_image_attribute/4,	
 	 describe_images/5,	
-	 describe_instances/3,	
+	 describe_images_by_tag/4,
+	 describe_instances/3,
 	 describe_key_pairs/3,	
 	 describe_security_groups/3,	
 	 get_console_output/3,	
@@ -83,8 +84,8 @@
 						% Construct the URL for accessing a web services from ec2.
 ec2_url(Key, Params) ->
     NoNullParams = filter_nulls(Params),
-    ?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []).
-
+    Url = ?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []),
+    Url.
 
 ec2_url_1([{K, V}], Data) -> ec2_url_1([], ["?", K, "=", edoc_lib:escape_uri(V) | Data]);
 ec2_url_1([{K, V}|T], Data) -> ec2_url_1(T, ["&", K, "=", edoc_lib:escape_uri(V) | Data]);
@@ -167,8 +168,7 @@ authorize_security_group_ingress(Key, AccessKey,
 		{"CidrIp", CidrIp}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% ConfirmProductInstance
 %%
@@ -190,8 +190,7 @@ confirm_product_instance(Key, AccessKey,
 		{"InstanceId", InstanceId}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% CreateKeyPair
 %%
@@ -207,8 +206,7 @@ create_key_pair(Key, AccessKey,
 		{"KeyName", KeyName}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% CreateSecurityGroup
 %%
@@ -232,8 +230,7 @@ create_security_group(Key, AccessKey,
 		{"GroupDescription", GroupDescription}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% CreateTags
 %%
@@ -253,8 +250,7 @@ create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n
 			     ]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DeleteKeyPair
 %%
@@ -268,8 +264,7 @@ delete_key_pair(Key, AccessKey,
 		{"KeyName", KeyName}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DeleteSecurityGroup
 %%
@@ -287,8 +282,7 @@ delete_security_group(Key, AccessKey,
 		{"GroupName", GroupName}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DeregisterImage
 %%
@@ -303,8 +297,7 @@ deregister_image(Key, AccessKey,
 		{"ImageId", ImageId}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DescribeImageAttribute
 %%
@@ -321,8 +314,7 @@ describe_image_attribute(Key, AccessKey,
 		{"Attribute", Attribute}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DescribeImages
 %%
@@ -383,8 +375,22 @@ describe_images(Key, AccessKey,
 			      create_ec2_param_list("ExecutableBy", ExecutableBy_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
+
+describe_images_by_tag(Key, AccessKey,
+		       Owner_n,
+		       Tags
+		      ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeImages"},
+			      create_ec2_param_list("Owner", Owner_n),
+			      create_ec2_param_list("Filter", "Name", lists:map(fun({TagKey,_}) -> "tag:" ++ TagKey end, Tags)),
+			      create_ec2_param_list("Filter", "Value", lists:map(fun({_, TagValue}) -> TagValue end, Tags))
+			     ]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+
+    make_http_request(Url).
 
 %% DescribeInstances
 %%
@@ -411,8 +417,7 @@ describe_instances(Key, AccessKey,
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DescribeKeyPairs
 %%
@@ -428,8 +433,7 @@ describe_key_pairs(Key, AccessKey,
 			      create_ec2_param_list("KeyName", KeyName_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% DescribeSecurityGroups
 %%
@@ -450,8 +454,7 @@ describe_security_groups(Key, AccessKey,
 			      create_ec2_param_list("GroupName", GroupName_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% GetConsoleOutput
 %%
@@ -471,8 +474,7 @@ get_console_output(Key, AccessKey,
 		{"InstanceId", InstanceId}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% ModifyImageAttribute
 %%
@@ -509,8 +511,7 @@ modify_image_attribute(Key, AccessKey,
 			      create_ec2_param_list("ProductCode", ProductCode_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% RebootInstances
 %%
@@ -528,8 +529,7 @@ reboot_instances(Key, AccessKey,
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% RegisterImage
 %%
@@ -554,8 +554,7 @@ register_image(Key, AccessKey,
 		{"ImageLocation", ImageLocation}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% ResetImageAttribute
 %%
@@ -574,8 +573,7 @@ reset_image_attribute(Key, AccessKey,
 		{"Attribute", Attribute}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% RevokeSecurityGroupIngress
 %%
@@ -649,8 +647,7 @@ revoke_security_group_ingress(Key, AccessKey,
 		{"CidrIp", CidrIp}],
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% RunInstances
 %%
@@ -708,8 +705,7 @@ run_instances(Key, AccessKey,
 			      {"AddressingType", AddressingType}]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
 %% TerminateInstances
 %%
@@ -728,6 +724,13 @@ terminate_instances(Key, AccessKey,
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
-    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
-    Body.
+    make_http_request(Url).
 
+make_http_request(Url) ->
+    case httpc:request(Url) of
+	{ok, {_Status, _Headers, Body}} ->
+	    Body;
+	Fail ->
+	    io:format("Failed on call to url ~p with results ~p~n", [Url, Fail]),
+	    throw(Fail)
+	end.

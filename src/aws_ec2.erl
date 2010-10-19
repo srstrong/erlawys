@@ -57,6 +57,7 @@
 	 describe_image_attribute/5,
 	 describe_images/3,
 	 describe_images/6,	
+	 describe_images_by_tag/5,
 	 describe_instance/4,
 	 describe_instances/3,
 	 describe_instances/4,
@@ -102,7 +103,7 @@ authorize_security_group_ingress(Key, AccessKey, Model,
 						       null,
 						       null,
 						       null),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 authorize_security_group_ingress(Key, AccessKey, Model,
 				 GroupName,
@@ -119,7 +120,7 @@ authorize_security_group_ingress(Key, AccessKey, Model,
 						       FromPort,
 						       ToPort,
 						       CidrIp),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% ConfirmProductInstance
@@ -132,7 +133,7 @@ confirm_product_instance(Key, AccessKey, Model,
     Xml = aws_ec2_xml:confirm_product_instance(Key, AccessKey,
 					       ProductCode,
 					       InstanceId),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% CreateKeyPair
@@ -143,7 +144,7 @@ create_key_pair(Key, AccessKey, Model,
 	       ) ->
     Xml = aws_ec2_xml:create_key_pair(Key, AccessKey,
 				      KeyName),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% CreateSecurityGroup
@@ -156,7 +157,7 @@ create_security_group(Key, AccessKey, Model,
     Xml = aws_ec2_xml:create_security_group(Key, AccessKey,
 					    GroupName,
 					    GroupDescription),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% CreateTags
@@ -164,7 +165,8 @@ create_security_group(Key, AccessKey, Model,
 create_tags(Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
 	   ) ->
     Xml = aws_ec2_xml:create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+io:format("~p~n", [Xml]),
+    return_term(Xml, Model).
 
 %%
 %% DeleteKeyPair
@@ -175,7 +177,7 @@ delete_key_pair(Key, AccessKey, Model,
 	       ) ->
     Xml = aws_ec2_xml:delete_key_pair(Key, AccessKey,
 				      KeyName),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DeleteSecurityGroup
@@ -186,7 +188,7 @@ delete_security_group(Key, AccessKey, Model,
 		     ) ->
     Xml = aws_ec2_xml:delete_security_group(Key, AccessKey,
 					    GroupName),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DeregisterImage
@@ -197,7 +199,7 @@ deregister_image(Key, AccessKey, Model,
 		) ->
     Xml = aws_ec2_xml:deregister_image(Key, AccessKey,
 				       ImageId),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DescribeImageAttribute
@@ -210,7 +212,7 @@ describe_image_attribute(Key, AccessKey, Model,
     Xml = aws_ec2_xml:describe_image_attribute(Key, AccessKey,
 					       ImageId,
 					       Attribute),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DescribeImages
@@ -232,7 +234,12 @@ describe_images(Key, AccessKey, Model,
 				      ImageId_n,
 				      Owner_n,
 				      ExecutableBy_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
+
+describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
+	       ) when is_atom(OwnerAlias) ->
+    Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, [atom_to_list(OwnerAlias)], Tags),
+    return_term(Xml, Model).
 
 %%
 %% DescribeInstances
@@ -252,7 +259,7 @@ describe_instances(Key, AccessKey, Model,
 		  ) ->
     Xml = aws_ec2_xml:describe_instances(Key, AccessKey,
 					 InstanceId_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DescribeKeyPairs
@@ -263,7 +270,7 @@ describe_key_pairs(Key, AccessKey, Model,
 		  ) ->
     Xml = aws_ec2_xml:describe_key_pairs(Key, AccessKey,
 					 KeyName_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% DescribeSecurityGroups
@@ -274,7 +281,7 @@ describe_security_groups(Key, AccessKey, Model,
 			) ->
     Xml = aws_ec2_xml:describe_security_groups(Key, AccessKey,
 					       GroupName_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% GetConsoleOutput
@@ -285,7 +292,7 @@ get_console_output(Key, AccessKey, Model,
 		  ) ->
     Xml = aws_ec2_xml:get_console_output(Key, AccessKey,
 					 InstanceId),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% ModifyImageAttribute
@@ -306,7 +313,7 @@ modify_image_attribute(Key, AccessKey, Model,
 					     UserId_n,
 					     UserGroup_n,
 					     ProductCode_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% RebootInstances
@@ -322,7 +329,7 @@ reboot_instances(Key, AccessKey, Model,
 		) ->
     Xml = aws_ec2_xml:reboot_instances(Key, AccessKey,
 				       InstanceId_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% RegisterImage
@@ -333,7 +340,7 @@ register_image(Key, AccessKey, Model,
 	      ) ->
     Xml = aws_ec2_xml:register_image(Key, AccessKey,
 				     ImageLocation),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% ResetImageAttribute
@@ -346,7 +353,7 @@ reset_image_attribute(Key, AccessKey, Model,
     Xml = aws_ec2_xml:reset_image_attribute(Key, AccessKey,
 					    ImageId,
 					    Attribute),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% RevokeSecurityGroupIngress
@@ -365,7 +372,7 @@ revoke_security_group_ingress(Key, AccessKey, Model,
 						    null,
 						    null,
 						    null),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 revoke_security_group_ingress(Key, AccessKey, Model,
 			      GroupName,
@@ -382,7 +389,7 @@ revoke_security_group_ingress(Key, AccessKey, Model,
 						    FromPort,
 						    ToPort,
 						    CidrIp),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% RunInstances
@@ -408,7 +415,7 @@ run_instances(Key, AccessKey, Model,
 				    SecurityGroup_n,
 				    UserData,
 				    AddressingType),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
 %%
 %% TerminateInstances
@@ -422,5 +429,13 @@ terminate_instances(Key, AccessKey, Model,
 		   ) ->
     Xml = aws_ec2_xml:terminate_instances(Key, AccessKey,
 					  InstanceId_n),
-    tuple_3to2(erlsom:scan(Xml, Model)).
+    return_term(Xml, Model).
 
+return_term(Xml, Model) ->
+    case tuple_3to2(erlsom:scan(Xml, Model)) of
+	Result = {ok, _} ->
+	    Result;
+	Fail = {Other, Term} ->
+	    io:format("Got error ~p~n~p~n~p~n", [Other, Term, Xml]),
+	    throw({Xml, Fail})
+    end.
