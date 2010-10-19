@@ -163,7 +163,7 @@ create_security_group(Key, AccessKey, Model,
 %%
 create_tags(Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
 	   ) ->
-    Xml = aws_ec2_xml:create_tabs(Key, AccessKey, ResourceId_n, TagKeyValues_n),
+    Xml = aws_ec2_xml:create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n),
     tuple_3to2(erlsom:scan(Xml, Model)).
 
 %%
