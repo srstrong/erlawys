@@ -44,46 +44,46 @@
 
 -import(aws_util, [filter_nulls/1, params_signature/2, replace_colons/1, add_default_params/3, create_ec2_param_list/2, create_ec2_param_list/3]).
 
-%-compile(export_all).
+						%-compile(export_all).
 -export([ec2_url/2,
-		authorize_security_group_ingress/5,	
-		authorize_security_group_ingress/7,
-		confirm_product_instance/4,	
-		create_key_pair/3,	
-		create_security_group/4,	
-		delete_key_pair/3,	
-		delete_security_group/3,	
-		deregister_image/3,	
-		describe_image_attribute/4,	
-		describe_images/5,	
-		describe_instances/3,	
-		describe_key_pairs/3,	
-		describe_security_groups/3,	
-		get_console_output/3,	
-		modify_image_attribute/8,	
-		reboot_instances/3,	
-		register_image/3,	
-		reset_image_attribute/4,	
-		revoke_security_group_ingress/5,	
-		revoke_security_group_ingress/7,	
-		run_instances/9,	
-		terminate_instances/3,
-	        create_tags/4]).
+	 authorize_security_group_ingress/5,	
+	 authorize_security_group_ingress/7,
+	 confirm_product_instance/4,	
+	 create_key_pair/3,	
+	 create_security_group/4,	
+	 delete_key_pair/3,	
+	 delete_security_group/3,	
+	 deregister_image/3,	
+	 describe_image_attribute/4,	
+	 describe_images/5,	
+	 describe_instances/3,	
+	 describe_key_pairs/3,	
+	 describe_security_groups/3,	
+	 get_console_output/3,	
+	 modify_image_attribute/8,	
+	 reboot_instances/3,	
+	 register_image/3,	
+	 reset_image_attribute/4,	
+	 revoke_security_group_ingress/5,	
+	 revoke_security_group_ingress/7,	
+	 run_instances/9,	
+	 terminate_instances/3,
+	 create_tags/4]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Helper Methods used to construct URLs to access AWS.
+						% Helper Methods used to construct URLs to access AWS.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -define(EC2_BASE_URL, "https://ec2.amazonaws.com/").
-%-define(VERSION, "2007-03-01").
+						%-define(VERSION, "2007-03-01").
 -define(VERSION, "2010-08-31").
 
 
-% Construct the URL for accessing a web services from ec2.
+						% Construct the URL for accessing a web services from ec2.
 ec2_url(Key, Params) ->
-	NoNullParams = filter_nulls(Params),
-	?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []).
+    NoNullParams = filter_nulls(Params),
+    ?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []).
 
 
 ec2_url_1([{K, V}], Data) -> ec2_url_1([], ["?", K, "=", edoc_lib:escape_uri(V) | Data]);
@@ -92,25 +92,8 @@ ec2_url_1([], Data) -> lists:flatten(Data).
 
 add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, ?VERSION).
 
-create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n 
-	) ->
-        ExpandedTags = [Tags || _Resources <- ResourceId_n, Tags <- TagKeyValues_n],
-	Params = add_default_params(
-		lists:flatten([
-			       {"Action", "CreateTags"},
-			       create_ec2_param_list("ResourceId", ResourceId_n),
-			       create_ec2_param_list("Tag", "Key", lists:map(fun({TagKey, _}) -> TagKey end, ExpandedTags)),
-			       create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue end, ExpandedTags))
-			      ]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-io:format("~p~n", [Url]),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Implementation of Amazon EC2 API.
+						% Implementation of Amazon EC2 API.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% AuthorizeSecurityGroupIngress
@@ -135,46 +118,46 @@ io:format("~p~n", [Url]),
 %% parameters is not allowed. 
 
 authorize_security_group_ingress(Key, AccessKey,
-		GroupName,
-		SourceSecurityGroupName,
-		SourceSecurityGroupOwnerId
-	) ->
-	authorize_security_group_ingress(Key, AccessKey,
-		GroupName,
-		SourceSecurityGroupName,
-		SourceSecurityGroupOwnerId,
-		null,
-		null,
-		null,
-		null).
-		
-authorize_security_group_ingress(Key, AccessKey,
-		GroupName,
-		IpProtocol,
-		FromPort,
-		ToPort,
-		CidrIp
-	) ->
-	authorize_security_group_ingress(Key, AccessKey,
-		GroupName,
-		null,
-		null,
-		IpProtocol,
-		FromPort,
-		ToPort,
-		CidrIp).
+				 GroupName,
+				 SourceSecurityGroupName,
+				 SourceSecurityGroupOwnerId
+				) ->
+    authorize_security_group_ingress(Key, AccessKey,
+				     GroupName,
+				     SourceSecurityGroupName,
+				     SourceSecurityGroupOwnerId,
+				     null,
+				     null,
+				     null,
+				     null).
 
 authorize_security_group_ingress(Key, AccessKey,
-		GroupName,
-		SourceSecurityGroupName,
-		SourceSecurityGroupOwnerId,
-		IpProtocol,
-		FromPort,
-		ToPort,
-		CidrIp
-	) ->
-	Params = add_default_params(
-		[{"Action", "AuthorizeSecurityGroupIngress"},
+				 GroupName,
+				 IpProtocol,
+				 FromPort,
+				 ToPort,
+				 CidrIp
+				) ->
+    authorize_security_group_ingress(Key, AccessKey,
+				     GroupName,
+				     null,
+				     null,
+				     IpProtocol,
+				     FromPort,
+				     ToPort,
+				     CidrIp).
+
+authorize_security_group_ingress(Key, AccessKey,
+				 GroupName,
+				 SourceSecurityGroupName,
+				 SourceSecurityGroupOwnerId,
+				 IpProtocol,
+				 FromPort,
+				 ToPort,
+				 CidrIp
+				) ->
+    Params = add_default_params(
+	       [{"Action", "AuthorizeSecurityGroupIngress"},
 		{"Groupname", GroupName},
 		{"SourceSecurityGroupName", SourceSecurityGroupName},
 		{"SourceSecurityGroupOwnerId", SourceSecurityGroupOwnerId},
@@ -182,10 +165,10 @@ authorize_security_group_ingress(Key, AccessKey,
 		{"FromPort", FromPort},
 		{"ToPort", ToPort},
 		{"CidrIp", CidrIp}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
 
 %% ConfirmProductInstance
 %%
@@ -198,18 +181,18 @@ authorize_security_group_ingress(Key, AccessKey,
 %% wants to verify whether a user's instance is eligible. 
 
 confirm_product_instance(Key, AccessKey,
-		ProductCode,
-		InstanceId
-	) ->
-	Params = add_default_params(
-		[{"Action", "ConfirmProductInstance"},
+			 ProductCode,
+			 InstanceId
+			) ->
+    Params = add_default_params(
+	       [{"Action", "ConfirmProductInstance"},
 		{"ProductCode", ProductCode},
 		{"InstanceId", InstanceId}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% CreateKeyPair
 %%
 %% The CreateKeyPair operation creates a new 2048 bit RSA keypair and returns a
@@ -218,15 +201,15 @@ confirm_product_instance(Key, AccessKey,
 
 create_key_pair(Key, AccessKey,
 		KeyName
-	) ->
-	Params = add_default_params(
-		[{"Action", "CreateKeyPair"},
+	       ) ->
+    Params = add_default_params(
+	       [{"Action", "CreateKeyPair"},
 		{"KeyName", KeyName}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% CreateSecurityGroup
 %%
 %% The CreateSecurityGroup operation creates a new security group.
@@ -240,33 +223,54 @@ create_key_pair(Key, AccessKey,
 %% RevokeSecurityGroupIngress operations. 
 
 create_security_group(Key, AccessKey,
-		GroupName,
-		GroupDescription
-	) ->
-	Params = add_default_params(
-		[{"Action", "CreateSecurityGroup"},
+		      GroupName,
+		      GroupDescription
+		     ) ->
+    Params = add_default_params(
+	       [{"Action", "CreateSecurityGroup"},
 		{"GroupName", GroupName},
 		{"GroupDescription", GroupDescription}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
+%% CreateTags
+%%
+%% Adds or overwrites one or more tags for the specified resource or resources. Each resource can
+%% have a maximum of 10 tags. Each tag consists of a key and optional value. 
+%% Tag keys must be unique per resource.
+
+create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n 
+	   ) ->
+    ExpandedTags = [Tags || _Resources <- ResourceId_n, Tags <- TagKeyValues_n],
+    Params = add_default_params(
+	       lists:flatten([
+			      {"Action", "CreateTags"},
+			      create_ec2_param_list("ResourceId", ResourceId_n),
+			      create_ec2_param_list("Tag", "Key", lists:map(fun({TagKey, _}) -> TagKey end, ExpandedTags)),
+			      create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue end, ExpandedTags))
+			     ]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DeleteKeyPair
 %%
 %% The DeleteKeyPair operation deletes a keypair.
 
 delete_key_pair(Key, AccessKey,
 		KeyName
-	) ->
-	Params = add_default_params(
-		[{"Action", "DeleteKeyPair"},
+	       ) ->
+    Params = add_default_params(
+	       [{"Action", "DeleteKeyPair"},
 		{"KeyName", KeyName}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DeleteSecurityGroup
 %%
 %% The DeleteSecurityGroup operation deletes a security group.
@@ -276,50 +280,50 @@ delete_key_pair(Key, AccessKey,
 %% 
 
 delete_security_group(Key, AccessKey,
-		GroupName
-	) ->
-	Params = add_default_params(
-		[{"Action", "DeleteSecurityGroup"},
+		      GroupName
+		     ) ->
+    Params = add_default_params(
+	       [{"Action", "DeleteSecurityGroup"},
 		{"GroupName", GroupName}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DeregisterImage
 %%
 %% The DeregisterImage operation deregisters an AMI. Once deregistered,
 %% instances of the AMI may no longer be launched.
 
 deregister_image(Key, AccessKey,
-		ImageId
-	) ->
-	Params = add_default_params(
-		[{"Action", "DeregisterImage"},
+		 ImageId
+		) ->
+    Params = add_default_params(
+	       [{"Action", "DeregisterImage"},
 		{"ImageId", ImageId}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DescribeImageAttribute
 %%
 %% The DescribeImageAttribute operation returns information about an attribute of
 %% an AMI. Only one attribute may be specified per call.
 
 describe_image_attribute(Key, AccessKey,
-		ImageId,
-		Attribute
-	) ->
-	Params = add_default_params(
-		[{"Action", "DescribeImageAttribute"},
+			 ImageId,
+			 Attribute
+			) ->
+    Params = add_default_params(
+	       [{"Action", "DescribeImageAttribute"},
 		{"ImageId", ImageId},
 		{"Attribute", Attribute}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DescribeImages
 %%
 %%  The DescribeImages operation returns information about AMIs available for
@@ -371,16 +375,16 @@ describe_images(Key, AccessKey,
 		ImageId_n,
 		Owner_n,
 		ExecutableBy_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "DescribeImages"},
-		create_ec2_param_list("ImageId", ImageId_n),
-		create_ec2_param_list("Owner", Owner_n),
-		create_ec2_param_list("ExecutableBy", ExecutableBy_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
+	       ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeImages"},
+			      create_ec2_param_list("ImageId", ImageId_n),
+			      create_ec2_param_list("Owner", Owner_n),
+			      create_ec2_param_list("ExecutableBy", ExecutableBy_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
 
 %% DescribeInstances
 %%
@@ -400,16 +404,16 @@ describe_images(Key, AccessKey,
 %% 
 
 describe_instances(Key, AccessKey,
-		InstanceId_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "DescribeInstances"},
-		create_ec2_param_list("InstanceId", InstanceId_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+		   InstanceId_n
+		  ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeInstances"},
+			      create_ec2_param_list("InstanceId", InstanceId_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DescribeKeyPairs
 %%
 %% The DescribeKeyPairs operation returns information about keypairs available
@@ -417,16 +421,16 @@ describe_instances(Key, AccessKey,
 %% the list may be left empty if information for all registered keypairs is required.
 
 describe_key_pairs(Key, AccessKey,
-		KeyName_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "DescribeKeyPairs"},
-		create_ec2_param_list("KeyName", KeyName_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+		   KeyName_n
+		  ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeKeyPairs"},
+			      create_ec2_param_list("KeyName", KeyName_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% DescribeSecurityGroups
 %%
 %% The DescribeSecurityGroups operation returns information about security
@@ -439,16 +443,16 @@ describe_key_pairs(Key, AccessKey,
 %% 
 
 describe_security_groups(Key, AccessKey,
-		GroupName_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "DescribeSecurityGroups"},
-		create_ec2_param_list("GroupName", GroupName_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+			 GroupName_n
+			) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeSecurityGroups"},
+			      create_ec2_param_list("GroupName", GroupName_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% GetConsoleOutput
 %%
 %% The GetConsoleOutput operation retrieves console output that has been posted
@@ -460,16 +464,16 @@ describe_security_groups(Key, AccessKey,
 %% the most recent post. 
 
 get_console_output(Key, AccessKey,
-		InstanceId
-	) ->
-	Params = add_default_params(
-		[{"Action", "GetConsoleOutput"},
+		   InstanceId
+		  ) ->
+    Params = add_default_params(
+	       [{"Action", "GetConsoleOutput"},
 		{"InstanceId", InstanceId}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% ModifyImageAttribute
 %%
 %% The ModifyImageAttribute operation modifies an attribute of an AMI.
@@ -488,26 +492,26 @@ get_console_output(Key, AccessKey,
 %% attribute is a write once attribute.	operation not required
 
 modify_image_attribute(Key, AccessKey,
-		ImageId,
-		Attribute,
-		OperationType,
-		UserId_n,
-		UserGroup_n,
-		ProductCode_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "ModifyImageAttribute"},
-		{"ImageId", ImageId},
-		{"Attribute", Attribute},
-		{"OperationType", OperationType},
-		create_ec2_param_list("UserId", UserId_n),
-		create_ec2_param_list("UserGroup", UserGroup_n),
-		create_ec2_param_list("ProductCode", ProductCode_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+		       ImageId,
+		       Attribute,
+		       OperationType,
+		       UserId_n,
+		       UserGroup_n,
+		       ProductCode_n
+		      ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "ModifyImageAttribute"},
+			      {"ImageId", ImageId},
+			      {"Attribute", Attribute},
+			      {"OperationType", OperationType},
+			      create_ec2_param_list("UserId", UserId_n),
+			      create_ec2_param_list("UserGroup", UserGroup_n),
+			      create_ec2_param_list("ProductCode", ProductCode_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% RebootInstances
 %%
 %% The RebootInstances operation requests a reboot of one or more instances.
@@ -517,16 +521,16 @@ modify_image_attribute(Key, AccessKey,
 %% Request Parameters
 
 reboot_instances(Key, AccessKey,
-		InstanceId_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "RebootInstances"},
-		create_ec2_param_list("InstanceId", InstanceId_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+		 InstanceId_n
+		) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "RebootInstances"},
+			      create_ec2_param_list("InstanceId", InstanceId_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% RegisterImage
 %%
 %% The RegisterImage operation registers an AMI with Amazon EC2. Images must
@@ -543,16 +547,16 @@ reboot_instances(Key, AccessKey,
 %% deregister the previous image and register the new image. 
 
 register_image(Key, AccessKey,
-		ImageLocation
-	) ->
-	Params = add_default_params(
-		[{"Action", "RegisterImage"},
+	       ImageLocation
+	      ) ->
+    Params = add_default_params(
+	       [{"Action", "RegisterImage"},
 		{"ImageLocation", ImageLocation}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% ResetImageAttribute
 %%
 %% The ResetImageAttribute operation resets an attribute of an AMI to its default
@@ -561,18 +565,18 @@ register_image(Key, AccessKey,
 %% The productCodes attribute cannot be reset. 
 
 reset_image_attribute(Key, AccessKey,
-		ImageId,
-		Attribute
-	) ->
-	Params = add_default_params(
-		[{"Action", "ResetImageAttribute"},
+		      ImageId,
+		      Attribute
+		     ) ->
+    Params = add_default_params(
+	       [{"Action", "ResetImageAttribute"},
 		{"ImageId", ImageId},
 		{"Attribute", Attribute}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% RevokeSecurityGroupIngress
 %%
 %% The RevokeSecurityGroupIngress operation revokes existing permissions that
@@ -596,46 +600,46 @@ reset_image_attribute(Key, AccessKey,
 %% parameters is not allowed. 
 
 revoke_security_group_ingress(Key, AccessKey,
-		GroupName,
-		SourceSecurityGroupName,
-		SourceSecurityGroupOwnerId
-	) ->
-	revoke_security_group_ingress(Key, AccessKey,
-			GroupName,
-			SourceSecurityGroupName,
-			SourceSecurityGroupOwnerId,
-			null,
-			null,
-			null,
-			null).
+			      GroupName,
+			      SourceSecurityGroupName,
+			      SourceSecurityGroupOwnerId
+			     ) ->
+    revoke_security_group_ingress(Key, AccessKey,
+				  GroupName,
+				  SourceSecurityGroupName,
+				  SourceSecurityGroupOwnerId,
+				  null,
+				  null,
+				  null,
+				  null).
 
 revoke_security_group_ingress(Key, AccessKey,
-		GroupName,
-		IpProtocol,
-		FromPort,
-		ToPort,
-		CidrIp
-	) ->
-	revoke_security_group_ingress(Key, AccessKey,
-			GroupName,
-			null,
-			null,
-			IpProtocol,
-			FromPort,
-			ToPort,
-			CidrIp).
+			      GroupName,
+			      IpProtocol,
+			      FromPort,
+			      ToPort,
+			      CidrIp
+			     ) ->
+    revoke_security_group_ingress(Key, AccessKey,
+				  GroupName,
+				  null,
+				  null,
+				  IpProtocol,
+				  FromPort,
+				  ToPort,
+				  CidrIp).
 
 revoke_security_group_ingress(Key, AccessKey,
-		GroupName,
-		SourceSecurityGroupName,
-		SourceSecurityGroupOwnerId,
-		IpProtocol,
-		FromPort,
-		ToPort,
-		CidrIp
-	) ->
-	Params = add_default_params(
-		[{"Action", "RevokeSecurityGroupIngress"},
+			      GroupName,
+			      SourceSecurityGroupName,
+			      SourceSecurityGroupOwnerId,
+			      IpProtocol,
+			      FromPort,
+			      ToPort,
+			      CidrIp
+			     ) ->
+    Params = add_default_params(
+	       [{"Action", "RevokeSecurityGroupIngress"},
 		{"GroupName", GroupName},
 		{"SourceSecurityGroupName", SourceSecurityGroupName},
 		{"SourceSecurityGroupOwnerId", SourceSecurityGroupOwnerId},
@@ -643,11 +647,11 @@ revoke_security_group_ingress(Key, AccessKey,
 		{"FromPort", FromPort},
 		{"ToPort", ToPort},
 		{"CidrIp", CidrIp}],
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% RunInstances
 %%
 %% The RunInstances operation launches a specified number of instances.
@@ -685,28 +689,28 @@ revoke_security_group_ingress(Key, AccessKey,
 %% the RunInstances call will fail. 
 
 run_instances(Key, AccessKey,
-		ImageId,
-		MinCount,
-		MaxCount,
-		KeyName,
-		SecurityGroup_n,
-		UserData,
-		AddressingType
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "RunInstances"},
-		{"ImageId", ImageId},
-		{"MinCount", integer_to_list(MinCount)},
-		{"MaxCount", integer_to_list(MaxCount)},
-		{"KeyName", KeyName},
-		create_ec2_param_list("SecurityGroup", SecurityGroup_n),
-		{"UserData", UserData},
-		{"AddressingType", AddressingType}]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+	      ImageId,
+	      MinCount,
+	      MaxCount,
+	      KeyName,
+	      SecurityGroup_n,
+	      UserData,
+	      AddressingType
+	     ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "RunInstances"},
+			      {"ImageId", ImageId},
+			      {"MinCount", integer_to_list(MinCount)},
+			      {"MaxCount", integer_to_list(MaxCount)},
+			      {"KeyName", KeyName},
+			      create_ec2_param_list("SecurityGroup", SecurityGroup_n),
+			      {"UserData", UserData},
+			      {"AddressingType", AddressingType}]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
 %% TerminateInstances
 %%
 %% The TerminateInstances operation shuts down one or more instances. This
@@ -717,13 +721,13 @@ run_instances(Key, AccessKey,
 %% one hour) after termination, after which their instance ID is invalidated. 
 
 terminate_instances(Key, AccessKey,
-		InstanceId_n
-	) ->
-	Params = add_default_params(
-		lists:flatten([{"Action", "TerminateInstances"},
-		create_ec2_param_list("InstanceId", InstanceId_n)]),
-		AccessKey),
-	Url = ec2_url(Key, Params),
-	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
-	Body.
-		
+		    InstanceId_n
+		   ) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "TerminateInstances"},
+			      create_ec2_param_list("InstanceId", InstanceId_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    { ok, {_Status, _Headers, Body }} = httpc:request(Url),
+    Body.
+
