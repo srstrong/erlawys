@@ -83,7 +83,7 @@
 %% Initialize AWS APIs.
 %%
 init() ->
-    {ok, ModelEC2} = erlsom:compile_xsd_file("ec2.xsd", [{prefix, "ec2"}]), ModelEC2.
+    {ok, ModelEC2} = erlsom:compile_xsd_file(filename:join(code:priv_dir(erlawys), "ec2.xsd"), [{prefix, "ec2"}]), ModelEC2.
 
 %%
 %% AuthorizeSecurityGroupIngress
