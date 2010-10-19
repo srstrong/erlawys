@@ -42,7 +42,7 @@
 
 -include_lib("ec2.hrl").
 
--import(aws_util, [filter_nulls/1, params_signature/2, replace_colons/1, add_default_params/3, create_ec2_param_list/2]).
+-import(aws_util, [filter_nulls/1, params_signature/2, replace_colons/1, add_default_params/3, create_ec2_param_list/2, create_ec2_param_list/3]).
 
 %-compile(export_all).
 -export([ec2_url/2,
@@ -67,7 +67,8 @@
 		revoke_security_group_ingress/5,	
 		revoke_security_group_ingress/7,	
 		run_instances/9,	
-		terminate_instances/3]).
+		terminate_instances/3,
+	        create_tags/4]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,7 +76,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -define(EC2_BASE_URL, "https://ec2.amazonaws.com/").
--define(VERSION, "2007-03-01").
+%-define(VERSION, "2007-03-01").
+-define(VERSION, "2010-08-31").
 
 
 % Construct the URL for accessing a web services from ec2.
@@ -89,6 +91,22 @@ ec2_url_1([{K, V}|T], Data) -> ec2_url_1(T, ["&", K, "=", edoc_lib:escape_uri(V)
 ec2_url_1([], Data) -> lists:flatten(Data).
 
 add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, ?VERSION).
+
+create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n 
+	) ->
+        ExpandedTags = [Tags || _Resources <- ResourceId_n, Tags <- TagKeyValues_n],
+	Params = add_default_params(
+		lists:flatten([
+			       {"Action", "CreateTags"},
+			       create_ec2_param_list("ResourceId", ResourceId_n),
+			       create_ec2_param_list("Tag", "Key", lists:map(fun({TagKey, _}) -> TagKey end, ExpandedTags)),
+			       create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue end, ExpandedTags))
+			      ]),
+		AccessKey),
+	Url = ec2_url(Key, Params),
+io:format("~p~n", [Url]),
+	{ ok, {_Status, _Headers, Body }} = httpc:request(Url),
+	Body.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -157,7 +175,7 @@ authorize_security_group_ingress(Key, AccessKey,
 	) ->
 	Params = add_default_params(
 		[{"Action", "AuthorizeSecurityGroupIngress"},
-		{"GroupName", GroupName},
+		{"Groupname", GroupName},
 		{"SourceSecurityGroupName", SourceSecurityGroupName},
 		{"SourceSecurityGroupOwnerId", SourceSecurityGroupOwnerId},
 		{"IpProtocol", IpProtocol},

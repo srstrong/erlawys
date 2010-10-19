@@ -46,6 +46,7 @@
 		params_signature/2, 
 		add_default_params/3,
 		create_ec2_param_list/2,
+		create_ec2_param_list/3,
 		tuple_3to2/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,10 +87,16 @@ create_timestamp({{Y, M, D}, {H, Mn, S}}) ->
 	to_str(H) ++ ":" ++ to_str(Mn)++ ":" ++ to_str(S) ++ "Z".
 
 % Create a list of name/value pairs for ec2 parameters.
-create_ec2_param_list(Name, Params) -> create_ec2_param_list(Name, Params, 1).
-create_ec2_param_list(_, null, _) -> [];
-create_ec2_param_list(Name, [H|T], C) -> [{Name ++ "." ++ integer_to_list(C), H} | create_ec2_param_list(Name, T, C + 1)];
-create_ec2_param_list(_, [], _) -> [].
+create_ec2_param_list(Name, Params) -> create_ec2_param_list_1(Name, Params, 1).
+create_ec2_param_list(NamePrefix, NameSuffix, Params) -> create_ec2_param_list_2(NamePrefix, NameSuffix, Params, 1).
+
+create_ec2_param_list_1(_, null, _) -> [];
+create_ec2_param_list_1(Name, [H|T], C) -> [{Name ++ "." ++ integer_to_list(C), H} | create_ec2_param_list_1(Name, T, C + 1)];
+create_ec2_param_list_1(_, [], _) -> [].
+
+create_ec2_param_list_2(_, _, null, _) -> [];
+create_ec2_param_list_2(NamePrefix, NameSuffix, [H|T], C) -> [{NamePrefix ++ "." ++ integer_to_list(C) ++ "." ++ NameSuffix, H} | create_ec2_param_list_2(NamePrefix, NameSuffix, T, C + 1)];
+create_ec2_param_list_2(_, _, [], _) -> [].
 
 % Strip 3 tuple to 2.
 tuple_3to2({ok, X, _}) -> {ok, X};
