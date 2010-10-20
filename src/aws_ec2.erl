@@ -61,6 +61,7 @@
 	 describe_instance/4,
 	 describe_instances/3,
 	 describe_instances/4,
+	 describe_instances_by_tag/4,
 	 describe_key_pairs/4,
 	 describe_security_groups/4,
 	 get_console_output/4,
@@ -165,7 +166,6 @@ create_security_group(Key, AccessKey, Model,
 create_tags(Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
 	   ) ->
     Xml = aws_ec2_xml:create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n),
-io:format("~p~n", [Xml]),
     return_term(Xml, Model).
 
 %%
@@ -259,6 +259,10 @@ describe_instances(Key, AccessKey, Model,
 		  ) ->
     Xml = aws_ec2_xml:describe_instances(Key, AccessKey,
 					 InstanceId_n),
+    return_term(Xml, Model).
+
+describe_instances_by_tag(Key, AccessKey, Model, Tags) ->
+    Xml = aws_ec2_xml:describe_instances_by_tag(Key, AccessKey, Tags),
     return_term(Xml, Model).
 
 %%

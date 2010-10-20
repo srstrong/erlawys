@@ -58,6 +58,7 @@
 	 describe_images/5,	
 	 describe_images_by_tag/4,
 	 describe_instances/3,
+	 describe_instances_by_tag/3,
 	 describe_key_pairs/3,	
 	 describe_security_groups/3,	
 	 get_console_output/3,	
@@ -415,6 +416,16 @@ describe_instances(Key, AccessKey,
     Params = add_default_params(
 	       lists:flatten([{"Action", "DescribeInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    make_http_request(Url).
+
+describe_instances_by_tag(Key, AccessKey, Tags) ->
+    Params = add_default_params(
+	       lists:flatten([{"Action", "DescribeInstances"},
+			      create_ec2_param_list("Filter", "Name", lists:map(fun({TagKey,_}) -> "tag:" ++ TagKey end, Tags)),
+			      create_ec2_param_list("Filter", "Value", lists:map(fun({_, TagValue}) -> TagValue end, Tags))
+			     ]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
     make_http_request(Url).
