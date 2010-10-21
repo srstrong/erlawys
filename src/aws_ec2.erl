@@ -237,7 +237,7 @@ describe_images(Key, AccessKey, Model,
     return_term(Xml, Model).
 
 describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
-	       ) when is_atom(OwnerAlias) ->
+	       ) when (OwnerAlias == self) or (OwnerAlias == amazon) ->
     Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, [atom_to_list(OwnerAlias)], Tags),
     return_term(Xml, Model).
 
