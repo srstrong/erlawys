@@ -73,7 +73,7 @@
 	 revoke_security_group_ingress/6,
 	 revoke_security_group_ingress/8,
 	 run_instance/4,
-	 run_instances/10,
+	 run_instances/11,
 	 terminate_instance/4,
 	 terminate_instances/4]).
 
@@ -400,7 +400,7 @@ revoke_security_group_ingress(Key, AccessKey, Model,
 %%
 
 run_instance(Key, AccessKey, Model, ImageId)
--> run_instances(Key, AccessKey, Model, ImageId, 1, 1, null, [], null, null).
+-> run_instances(Key, AccessKey, Model, ImageId, 1, 1, null, [], null, null, "m1.small").
 
 run_instances(Key, AccessKey, Model,
 	      ImageId,
@@ -409,7 +409,8 @@ run_instances(Key, AccessKey, Model,
 	      KeyName,
 	      SecurityGroup_n,
 	      UserData,
-	      AddressingType
+	      AddressingType,
+	      InstanceType
 	     ) ->
     Xml = aws_ec2_xml:run_instances(Key, AccessKey,
 				    ImageId,
@@ -418,7 +419,8 @@ run_instances(Key, AccessKey, Model,
 				    KeyName,
 				    SecurityGroup_n,
 				    UserData,
-				    AddressingType),
+				    AddressingType,
+				    InstanceType),
     return_term(Xml, Model).
 
 %%

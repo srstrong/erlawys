@@ -68,7 +68,7 @@
 	 reset_image_attribute/4,	
 	 revoke_security_group_ingress/5,	
 	 revoke_security_group_ingress/7,	
-	 run_instances/9,	
+	 run_instances/10,	
 	 terminate_instances/3,
 	 create_tags/4]).
 
@@ -703,7 +703,8 @@ run_instances(Key, AccessKey,
 	      KeyName,
 	      SecurityGroup_n,
 	      UserData,
-	      AddressingType
+	      AddressingType,
+	      InstanceType
 	     ) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "RunInstances"},
@@ -713,7 +714,8 @@ run_instances(Key, AccessKey,
 			      {"KeyName", KeyName},
 			      create_ec2_param_list("SecurityGroup", SecurityGroup_n),
 			      {"UserData", UserData},
-			      {"AddressingType", AddressingType}]),
+			      {"AddressingType", AddressingType},
+			      {"InstanceType", InstanceType}]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
     make_http_request(Url).
