@@ -243,7 +243,7 @@ describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
 
 describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
 	       ) when is_list(OwnerAlias) ->
-    Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, OwnerAlias, Tags),
+    Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, [OwnerAlias], Tags),
     return_term(Xml, Model).
 
 %%
