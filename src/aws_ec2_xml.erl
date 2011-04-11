@@ -69,6 +69,8 @@
 	 revoke_security_group_ingress/5,	
 	 revoke_security_group_ingress/7,	
 	 run_instances/10,	
+	 start_instances/3,
+	 stop_instances/3,
 	 terminate_instances/3,
 	 create_tags/4]).
 
@@ -716,6 +718,24 @@ run_instances(Key, AccessKey,
 			      {"UserData", UserData},
 			      {"AddressingType", AddressingType},
 			      {"InstanceType", InstanceType}]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    make_http_request(Url).
+
+start_instances(Key, AccessKey, InstanceId_n) ->
+
+    Params = add_default_params(
+	       lists:flatten([{"Action", "StartInstances"},
+			      create_ec2_param_list("InstanceId", InstanceId_n)]),
+	       AccessKey),
+    Url = ec2_url(Key, Params),
+    make_http_request(Url).
+
+stop_instances(Key, AccessKey, InstanceId_n) ->
+
+    Params = add_default_params(
+	       lists:flatten([{"Action", "StopInstances"},
+			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
     Url = ec2_url(Key, Params),
     make_http_request(Url).

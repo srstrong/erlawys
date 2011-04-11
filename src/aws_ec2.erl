@@ -74,6 +74,8 @@
 	 revoke_security_group_ingress/8,
 	 run_instance/4,
 	 run_instances/11,
+	 start_instance/4,
+	 stop_instance/4,
 	 terminate_instance/4,
 	 terminate_instances/4]).
 
@@ -426,6 +428,14 @@ run_instances(Key, AccessKey, Model,
 				    UserData,
 				    AddressingType,
 				    InstanceType),
+    return_term(Xml, Model).
+
+start_instance(Key, AccessKey, Model, InstanceId) ->
+    Xml = aws_ec2_xml:start_instances(Key, AccessKey, [InstanceId]),
+    return_term(Xml, Model).
+
+stop_instance(Key, AccessKey, Model, InstanceId) ->
+    Xml = aws_ec2_xml:stop_instances(Key, AccessKey, [InstanceId]),
     return_term(Xml, Model).
 
 %%
