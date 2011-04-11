@@ -40,6 +40,7 @@
 -date('2007/08/06').
 
 -include_lib("ec2.hrl").
+-include_lib("error.hrl").
 
 -import(aws_util, [tuple_3to2/1]).
 
@@ -87,7 +88,11 @@
 %% Initialize AWS APIs.
 %%
 init() ->
-    {ok, ModelEC2} = erlsom:compile_xsd_file(filename:join(code:priv_dir(erlawys), "ec2.xsd"), [{prefix, "ec2"}]), ModelEC2.
+    {ok, Model} = erlsom:compile_xsd_file(filename:join(code:priv_dir(erlawys), "ec2.xsd"), [{prefix, "ec2"}]), 
+
+    {ok, Model2} = erlsom:add_xsd_file(filename:join(code:priv_dir(erlawys), "error.xsd"), [], Model), 
+
+    Model2.
 
 %%
 %% AuthorizeSecurityGroupIngress
@@ -453,6 +458,7 @@ terminate_instances(Key, AccessKey, Model,
     return_term(Xml, Model).
 
 return_term(Xml, Model) ->
+
     case tuple_3to2(erlsom:scan(Xml, Model)) of
 	Result = {ok, _} ->
 	    Result;

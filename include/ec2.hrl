@@ -5,10 +5,10 @@
 %% It is possible to add default values, but be aware that these will
 %% only be used when *writing* an xml document.
 
--record('ec2:_document-UnmonitorInstancesResponse', {anyAttribs, 'requestId', 'instancesSet'}).
--record('ec2:_document-MonitorInstancesResponse', {anyAttribs, 'requestId', 'instancesSet'}).
--record('ec2:_document-UnmonitorInstances', {anyAttribs, 'instancesSet'}).
--record('ec2:_document-MonitorInstances', {anyAttribs, 'instancesSet'}).
+-record('_document-UnmonitorInstancesResponse', {anyAttribs, 'requestId', 'instancesSet'}).
+-record('_document-MonitorInstancesResponse', {anyAttribs, 'requestId', 'instancesSet'}).
+-record('_document-UnmonitorInstances', {anyAttribs, 'instancesSet'}).
+-record('_document-MonitorInstances', {anyAttribs, 'instancesSet'}).
 -record('ec2:DeleteTagsResponseType', {anyAttribs, 'requestId', 'return'}).
 -record('ec2:DeleteTagsType', {anyAttribs, 'resourcesSet', 'tagSet'}).
 -record('ec2:DeleteTagsSetType', {anyAttribs, 'item'}).
