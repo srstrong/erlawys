@@ -5,6 +5,6 @@
 %% It is possible to add default values, but be aware that these will
 %% only be used when *writing* an xml document.
 
--record('ResponseType', {anyAttribs, 'Errors'}).
--record('ErrorsType', {anyAttribs, 'Error'}).
--record('ErrorType', {anyAttribs, 'Code', 'Message'}).
+-record('EC2ErrorResponseType', {anyAttribs, 'Errors', 'RequestID'}).
+-record('EC2ErrorsType', {anyAttribs, 'Error'}).
+-record('EC2ErrorType', {anyAttribs, 'Code', 'Message'}).
