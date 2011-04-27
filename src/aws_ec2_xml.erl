@@ -45,49 +45,65 @@
 -import(aws_util, [filter_nulls/1, params_signature/2, replace_colons/1, add_default_params/3, create_ec2_param_list/2, create_ec2_param_list/3]).
 
 						%-compile(export_all).
--export([ec2_url/2,
-	 authorize_security_group_ingress/5,	
-	 authorize_security_group_ingress/7,
-	 confirm_product_instance/4,	
-	 create_key_pair/3,	
-	 create_security_group/4,	
-	 delete_key_pair/3,	
-	 delete_security_group/3,	
-	 deregister_image/3,	
-	 describe_image_attribute/4,	
-	 describe_images/5,	
-	 describe_images_by_tag/4,
-	 describe_instances/3,
-	 describe_instances_by_tag/3,
-	 describe_key_pairs/3,	
-	 describe_security_groups/3,	
-	 get_console_output/3,	
-	 modify_image_attribute/8,	
-	 reboot_instances/3,	
-	 register_image/3,	
-	 reset_image_attribute/4,	
-	 revoke_security_group_ingress/5,	
-	 revoke_security_group_ingress/7,	
-	 run_instances/10,	
-	 start_instances/3,
-	 stop_instances/3,
-	 terminate_instances/3,
-	 create_tags/4]).
+-export([ec2_url/1,
+	 ec2_url/3,
+	 authorize_security_group_ingress/6,	
+	 authorize_security_group_ingress/8,
+	 confirm_product_instance/5,   
+	 create_key_pair/4,	
+	 create_security_group/5,	
+	 delete_key_pair/4,	
+	 delete_security_group/4,	
+	 deregister_image/4,	
+	 describe_image_attribute/5,	
+	 describe_images/6,	
+	 describe_images_by_tag/5,
+	 describe_instances/4,
+	 describe_instances_by_tag/4,
+	 describe_key_pairs/4,	
+	 describe_security_groups/4,	
+	 get_console_output/4,	
+	 modify_image_attribute/9,	
+	 reboot_instances/4,	
+	 register_image/4,	
+	 reset_image_attribute/5,	
+	 revoke_security_group_ingress/6,	
+	 revoke_security_group_ingress/8,	
+	 run_instances/12,	
+	 start_instances/4,
+	 stop_instances/4,
+	 terminate_instances/4,
+	 create_tags/5]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-						% Helper Methods used to construct URLs to access AWS.
+%% Helper Methods used to construct URLs to access AWS.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
--define(EC2_BASE_URL, "https://ec2.amazonaws.com/").
-						%-define(VERSION, "2007-03-01").
 -define(VERSION, "2010-08-31").
 
+ec2_url(default) ->
+    "https://ec2.amazonaws.com";
 
-						% Construct the URL for accessing a web services from ec2.
-ec2_url(Key, Params) ->
+ec2_url(us_west) ->
+    "https://ec2.us-west-1.amazonaws.com";
+
+ec2_url(us_east) ->
+    "https://ec2.us-east-1.amazonaws.com";
+
+ec2_url(eu_west) ->
+    "https://ec2.eu-west-1.amazonaws.com";
+
+ec2_url(ap_se) ->
+    "https://ec2.ap-southeast-1.amazonaws.com";
+
+ec2_url(ap_ne) ->
+    "https://ec2.ap-northeast-1.amazonaws.com".
+
+%% Construct the URL for accessing a web services from ec2.
+ec2_url(Region, Key, Params) ->
     NoNullParams = filter_nulls(Params),
-    Url = ?EC2_BASE_URL ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []),
+    Url = ec2_url(Region) ++ ec2_url_1([{"Signature", params_signature(Key, NoNullParams)}|lists:reverse(NoNullParams)], []),
     Url.
 
 ec2_url_1([{K, V}], Data) -> ec2_url_1([], ["?", K, "=", edoc_lib:escape_uri(V) | Data]);
@@ -97,7 +113,7 @@ ec2_url_1([], Data) -> lists:flatten(Data).
 add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, ?VERSION).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-						% Implementation of Amazon EC2 API.
+%% Implementation of Amazon EC2 API.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% AuthorizeSecurityGroupIngress
@@ -121,12 +137,12 @@ add_default_params(Params, AccessKey) -> add_default_params(Params, AccessKey, ?
 %% FromPort, ToPort and CidrIp must be specified. Mixing these two types of
 %% parameters is not allowed. 
 
-authorize_security_group_ingress(Key, AccessKey,
+authorize_security_group_ingress(Region, Key, AccessKey,
 				 GroupName,
 				 SourceSecurityGroupName,
 				 SourceSecurityGroupOwnerId
 				) ->
-    authorize_security_group_ingress(Key, AccessKey,
+    authorize_security_group_ingress(Region, Key, AccessKey,
 				     GroupName,
 				     SourceSecurityGroupName,
 				     SourceSecurityGroupOwnerId,
@@ -135,14 +151,14 @@ authorize_security_group_ingress(Key, AccessKey,
 				     null,
 				     null).
 
-authorize_security_group_ingress(Key, AccessKey,
+authorize_security_group_ingress(Region, Key, AccessKey,
 				 GroupName,
 				 IpProtocol,
 				 FromPort,
 				 ToPort,
 				 CidrIp
 				) ->
-    authorize_security_group_ingress(Key, AccessKey,
+    authorize_security_group_ingress(Region, Key, AccessKey,
 				     GroupName,
 				     null,
 				     null,
@@ -151,7 +167,7 @@ authorize_security_group_ingress(Key, AccessKey,
 				     ToPort,
 				     CidrIp).
 
-authorize_security_group_ingress(Key, AccessKey,
+authorize_security_group_ingress(Region, Key, AccessKey,
 				 GroupName,
 				 SourceSecurityGroupName,
 				 SourceSecurityGroupOwnerId,
@@ -170,7 +186,7 @@ authorize_security_group_ingress(Key, AccessKey,
 		{"ToPort", ToPort},
 		{"CidrIp", CidrIp}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% ConfirmProductInstance
@@ -183,7 +199,7 @@ authorize_security_group_ingress(Key, AccessKey,
 %% the AMI. This feature is useful when an AMI owner is providing support and
 %% wants to verify whether a user's instance is eligible. 
 
-confirm_product_instance(Key, AccessKey,
+confirm_product_instance(Region, Key, AccessKey,
 			 ProductCode,
 			 InstanceId
 			) ->
@@ -192,7 +208,7 @@ confirm_product_instance(Key, AccessKey,
 		{"ProductCode", ProductCode},
 		{"InstanceId", InstanceId}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% CreateKeyPair
@@ -201,14 +217,14 @@ confirm_product_instance(Key, AccessKey,
 %% unique ID that can be used to reference this keypair when launching new
 %% instances.
 
-create_key_pair(Key, AccessKey,
+create_key_pair(Region, Key, AccessKey,
 		KeyName
 	       ) ->
     Params = add_default_params(
 	       [{"Action", "CreateKeyPair"},
 		{"KeyName", KeyName}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% CreateSecurityGroup
@@ -223,7 +239,7 @@ create_key_pair(Key, AccessKey,
 %% specific permissions using the AuthorizeSecurityGroupIngress and
 %% RevokeSecurityGroupIngress operations. 
 
-create_security_group(Key, AccessKey,
+create_security_group(Region, Key, AccessKey,
 		      GroupName,
 		      GroupDescription
 		     ) ->
@@ -232,7 +248,7 @@ create_security_group(Key, AccessKey,
 		{"GroupName", GroupName},
 		{"GroupDescription", GroupDescription}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% CreateTags
@@ -241,7 +257,7 @@ create_security_group(Key, AccessKey,
 %% have a maximum of 10 tags. Each tag consists of a key and optional value. 
 %% Tag keys must be unique per resource.
 
-create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n 
+create_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n 
 	   ) ->
     ExpandedTags = [Tags || _Resources <- ResourceId_n, Tags <- TagKeyValues_n],
     Params = add_default_params(
@@ -252,21 +268,21 @@ create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n
 			      create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue end, ExpandedTags))
 			     ]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DeleteKeyPair
 %%
 %% The DeleteKeyPair operation deletes a keypair.
 
-delete_key_pair(Key, AccessKey,
+delete_key_pair(Region, Key, AccessKey,
 		KeyName
 	       ) ->
     Params = add_default_params(
 	       [{"Action", "DeleteKeyPair"},
 		{"KeyName", KeyName}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DeleteSecurityGroup
@@ -277,14 +293,14 @@ delete_key_pair(Key, AccessKey,
 %% members of that group a fault is returned.
 %% 
 
-delete_security_group(Key, AccessKey,
+delete_security_group(Region, Key, AccessKey,
 		      GroupName
 		     ) ->
     Params = add_default_params(
 	       [{"Action", "DeleteSecurityGroup"},
 		{"GroupName", GroupName}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DeregisterImage
@@ -292,14 +308,14 @@ delete_security_group(Key, AccessKey,
 %% The DeregisterImage operation deregisters an AMI. Once deregistered,
 %% instances of the AMI may no longer be launched.
 
-deregister_image(Key, AccessKey,
+deregister_image(Region, Key, AccessKey,
 		 ImageId
 		) ->
     Params = add_default_params(
 	       [{"Action", "DeregisterImage"},
 		{"ImageId", ImageId}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DescribeImageAttribute
@@ -307,7 +323,7 @@ deregister_image(Key, AccessKey,
 %% The DescribeImageAttribute operation returns information about an attribute of
 %% an AMI. Only one attribute may be specified per call.
 
-describe_image_attribute(Key, AccessKey,
+describe_image_attribute(Region, Key, AccessKey,
 			 ImageId,
 			 Attribute
 			) ->
@@ -316,7 +332,7 @@ describe_image_attribute(Key, AccessKey,
 		{"ImageId", ImageId},
 		{"Attribute", Attribute}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DescribeImages
@@ -366,7 +382,7 @@ describe_image_attribute(Key, AccessKey,
 %% Deregistered images will be included in the returned results for an unspecified
 %% interval subsequent to deregistration. 
 
-describe_images(Key, AccessKey,
+describe_images(Region, Key, AccessKey,
 		ImageId_n,
 		Owner_n,
 		ExecutableBy_n
@@ -377,10 +393,10 @@ describe_images(Key, AccessKey,
 			      create_ec2_param_list("Owner", Owner_n),
 			      create_ec2_param_list("ExecutableBy", ExecutableBy_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
-describe_images_by_tag(Key, AccessKey,
+describe_images_by_tag(Region, Key, AccessKey,
 		       Owner_n,
 		       Tags
 		      ) ->
@@ -391,7 +407,7 @@ describe_images_by_tag(Key, AccessKey,
 			      create_ec2_param_list("Filter", "Value", lists:map(fun({_, TagValue}) -> TagValue end, Tags))
 			     ]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
 
     make_http_request(Url).
 
@@ -412,24 +428,24 @@ describe_images_by_tag(Key, AccessKey,
 %% one hour.
 %% 
 
-describe_instances(Key, AccessKey,
+describe_instances(Region, Key, AccessKey,
 		   InstanceId_n
 		  ) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "DescribeInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
-describe_instances_by_tag(Key, AccessKey, Tags) ->
+describe_instances_by_tag(Region, Key, AccessKey, Tags) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "DescribeInstances"},
 			      create_ec2_param_list("Filter", "Name", lists:map(fun({TagKey,_}) -> "tag:" ++ TagKey end, Tags)),
 			      create_ec2_param_list("Filter", "Value", lists:map(fun({_, TagValue}) -> TagValue end, Tags))
 			     ]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DescribeKeyPairs
@@ -438,14 +454,14 @@ describe_instances_by_tag(Key, AccessKey, Tags) ->
 %% for use by the user making the request. Selected keypairs may be specified or
 %% the list may be left empty if information for all registered keypairs is required.
 
-describe_key_pairs(Key, AccessKey,
+describe_key_pairs(Region, Key, AccessKey,
 		   KeyName_n
 		  ) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "DescribeKeyPairs"},
 			      create_ec2_param_list("KeyName", KeyName_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% DescribeSecurityGroups
@@ -459,14 +475,14 @@ describe_key_pairs(Key, AccessKey,
 %% does not exist a fault is returned.
 %% 
 
-describe_security_groups(Key, AccessKey,
+describe_security_groups(Region, Key, AccessKey,
 			 GroupName_n
 			) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "DescribeSecurityGroups"},
 			      create_ec2_param_list("GroupName", GroupName_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% GetConsoleOutput
@@ -479,14 +495,14 @@ describe_security_groups(Key, AccessKey,
 %% posted output is available. Console output is available for at least 1 hour after
 %% the most recent post. 
 
-get_console_output(Key, AccessKey,
+get_console_output(Region, Key, AccessKey,
 		   InstanceId
 		  ) ->
     Params = add_default_params(
 	       [{"Action", "GetConsoleOutput"},
 		{"InstanceId", InstanceId}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% ModifyImageAttribute
@@ -506,7 +522,7 @@ get_console_output(Key, AccessKey,
 %% productCodes	Attaches a product code to the AMIs. The productCodes
 %% attribute is a write once attribute.	operation not required
 
-modify_image_attribute(Key, AccessKey,
+modify_image_attribute(Region, Key, AccessKey,
 		       ImageId,
 		       Attribute,
 		       OperationType,
@@ -523,7 +539,7 @@ modify_image_attribute(Key, AccessKey,
 			      create_ec2_param_list("UserGroup", UserGroup_n),
 			      create_ec2_param_list("ProductCode", ProductCode_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% RebootInstances
@@ -534,14 +550,14 @@ modify_image_attribute(Key, AccessKey,
 %% belong to the user. Terminated instances will be ignored.
 %% Request Parameters
 
-reboot_instances(Key, AccessKey,
+reboot_instances(Region, Key, AccessKey,
 		 InstanceId_n
 		) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "RebootInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% RegisterImage
@@ -559,14 +575,14 @@ reboot_instances(Key, AccessKey,
 %% registration. If you do have to make changes and upload a new image
 %% deregister the previous image and register the new image. 
 
-register_image(Key, AccessKey,
+register_image(Region, Key, AccessKey,
 	       ImageLocation
 	      ) ->
     Params = add_default_params(
 	       [{"Action", "RegisterImage"},
 		{"ImageLocation", ImageLocation}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% ResetImageAttribute
@@ -576,7 +592,7 @@ register_image(Key, AccessKey,
 %% 
 %% The productCodes attribute cannot be reset. 
 
-reset_image_attribute(Key, AccessKey,
+reset_image_attribute(Region, Key, AccessKey,
 		      ImageId,
 		      Attribute
 		     ) ->
@@ -585,7 +601,7 @@ reset_image_attribute(Key, AccessKey,
 		{"ImageId", ImageId},
 		{"Attribute", Attribute}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% RevokeSecurityGroupIngress
@@ -610,12 +626,12 @@ reset_image_attribute(Key, AccessKey,
 %% FromPort, ToPort and CidrIp must be specified. Mixing these two types of
 %% parameters is not allowed. 
 
-revoke_security_group_ingress(Key, AccessKey,
+revoke_security_group_ingress(Region, Key, AccessKey,
 			      GroupName,
 			      SourceSecurityGroupName,
 			      SourceSecurityGroupOwnerId
 			     ) ->
-    revoke_security_group_ingress(Key, AccessKey,
+    revoke_security_group_ingress(Region, Key, AccessKey,
 				  GroupName,
 				  SourceSecurityGroupName,
 				  SourceSecurityGroupOwnerId,
@@ -624,14 +640,14 @@ revoke_security_group_ingress(Key, AccessKey,
 				  null,
 				  null).
 
-revoke_security_group_ingress(Key, AccessKey,
+revoke_security_group_ingress(Region, Key, AccessKey,
 			      GroupName,
 			      IpProtocol,
 			      FromPort,
 			      ToPort,
 			      CidrIp
 			     ) ->
-    revoke_security_group_ingress(Key, AccessKey,
+    revoke_security_group_ingress(Region, Key, AccessKey,
 				  GroupName,
 				  null,
 				  null,
@@ -640,7 +656,7 @@ revoke_security_group_ingress(Key, AccessKey,
 				  ToPort,
 				  CidrIp).
 
-revoke_security_group_ingress(Key, AccessKey,
+revoke_security_group_ingress(Region, Key, AccessKey,
 			      GroupName,
 			      SourceSecurityGroupName,
 			      SourceSecurityGroupOwnerId,
@@ -659,7 +675,7 @@ revoke_security_group_ingress(Key, AccessKey,
 		{"ToPort", ToPort},
 		{"CidrIp", CidrIp}],
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% RunInstances
@@ -698,7 +714,7 @@ revoke_security_group_ingress(Key, AccessKey,
 %% If the AMI has a product code attached for which the user has not subscribed,
 %% the RunInstances call will fail. 
 
-run_instances(Key, AccessKey,
+run_instances(Region, Key, AccessKey,
 	      ImageId,
 	      MinCount,
 	      MaxCount,
@@ -706,7 +722,8 @@ run_instances(Key, AccessKey,
 	      SecurityGroup_n,
 	      UserData,
 	      AddressingType,
-	      InstanceType
+	      InstanceType,
+	      AvailabilityZone
 	     ) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "RunInstances"},
@@ -717,27 +734,33 @@ run_instances(Key, AccessKey,
 			      create_ec2_param_list("SecurityGroup", SecurityGroup_n),
 			      {"UserData", UserData},
 			      {"AddressingType", AddressingType},
-			      {"InstanceType", InstanceType}]),
+			      {"InstanceType", InstanceType}
+			     ] ++
+				 case AvailabilityZone of
+				     null -> [];
+				     _ -> [{"Placement.AvailabilityZone", AvailabilityZone}]
+				 end
+			    ),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
-start_instances(Key, AccessKey, InstanceId_n) ->
+start_instances(Region, Key, AccessKey, InstanceId_n) ->
 
     Params = add_default_params(
 	       lists:flatten([{"Action", "StartInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
-stop_instances(Key, AccessKey, InstanceId_n) ->
+stop_instances(Region, Key, AccessKey, InstanceId_n) ->
 
     Params = add_default_params(
 	       lists:flatten([{"Action", "StopInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 %% TerminateInstances
@@ -749,14 +772,14 @@ stop_instances(Key, AccessKey, InstanceId_n) ->
 %% Terminated instances remain visible for a short period of time (approximately
 %% one hour) after termination, after which their instance ID is invalidated. 
 
-terminate_instances(Key, AccessKey,
+terminate_instances(Region, Key, AccessKey,
 		    InstanceId_n
 		   ) ->
     Params = add_default_params(
 	       lists:flatten([{"Action", "TerminateInstances"},
 			      create_ec2_param_list("InstanceId", InstanceId_n)]),
 	       AccessKey),
-    Url = ec2_url(Key, Params),
+    Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
 make_http_request(Url) ->

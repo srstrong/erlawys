@@ -46,42 +46,42 @@
 
 %-compile(export_all).
 -export([init/0,
-	 authorize_security_group_ingress/6,
-	 authorize_security_group_ingress/8,	
-	 confirm_product_instance/5,	
-	 create_key_pair/4,	
-	 create_security_group/5,	
-	 create_tags/5,
-	 delete_key_pair/4,	
-	 delete_security_group/4,
-	 deregister_image/4,
-	 describe_image_attribute/5,
-	 describe_images/3,
-	 describe_images/6,	
-	 describe_images_by_tag/5,
-	 describe_instance/4,
-	 describe_instances/3,
+	 authorize_security_group_ingress/7,
+	 authorize_security_group_ingress/9,	
+	 confirm_product_instance/6,	
+	 create_key_pair/5,	
+	 create_security_group/6,	
+	 create_tags/6,
+	 delete_key_pair/5,	
+	 delete_security_group/5,
+	 deregister_image/5,
+	 describe_image_attribute/6,
+	 describe_images/4,
+	 describe_images/7,	
+	 describe_images_by_tag/6,
+	 describe_instance/5,
 	 describe_instances/4,
-	 describe_instances_by_tag/4,
-	 describe_key_pairs/4,
-	 describe_security_groups/4,
-	 get_console_output/4,
-	 modify_image_attribute/9,
-	 reboot_instance/4,
-	 reboot_instances/4,
-	 register_image/4,
-	 reset_image_attribute/5,
-	 revoke_security_group_ingress/6,
-	 revoke_security_group_ingress/8,
-	 run_instance/4,
-	 run_instances/11,
-	 start_instance/4,
-	 stop_instance/4,
-	 terminate_instance/4,
-	 terminate_instances/4]).
+	 describe_instances/5,
+	 describe_instances_by_tag/5,
+	 describe_key_pairs/5,
+	 describe_security_groups/5,
+	 get_console_output/5,
+	 modify_image_attribute/10,
+	 reboot_instance/5,
+	 reboot_instances/5,
+	 register_image/5,
+	 reset_image_attribute/6,
+	 revoke_security_group_ingress/7,
+	 revoke_security_group_ingress/9,
+	 run_instance/5,
+	 run_instances/13,
+	 start_instance/5,
+	 stop_instance/5,
+	 terminate_instance/5,
+	 terminate_instances/5]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-						% Actual AWS API calls.
+%% Actual AWS API calls.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
@@ -98,12 +98,12 @@ init() ->
 %% AuthorizeSecurityGroupIngress
 %%
 
-authorize_security_group_ingress(Key, AccessKey, Model,
+authorize_security_group_ingress(Region, Key, AccessKey, Model,
 				 GroupName,
 				 SourceSecurityGroupName,
 				 SourceSecurityGroupOwnerId
 				) ->
-    Xml = aws_ec2_xml:authorize_security_group_ingress(Key, AccessKey,
+    Xml = aws_ec2_xml:authorize_security_group_ingress(Region, Key, AccessKey,
 						       GroupName,
 						       SourceSecurityGroupName,
 						       SourceSecurityGroupOwnerId,
@@ -113,14 +113,14 @@ authorize_security_group_ingress(Key, AccessKey, Model,
 						       null),
     return_term(Xml, Model).
 
-authorize_security_group_ingress(Key, AccessKey, Model,
+authorize_security_group_ingress(Region, Key, AccessKey, Model,
 				 GroupName,
 				 IpProtocol,
 				 FromPort,
 				 ToPort,
 				 CidrIp
 				) ->
-    Xml = aws_ec2_xml:authorize_security_group_ingress(Key, AccessKey,
+    Xml = aws_ec2_xml:authorize_security_group_ingress(Region, Key, AccessKey,
 						       GroupName,
 						       null,
 						       null,
@@ -134,11 +134,11 @@ authorize_security_group_ingress(Key, AccessKey, Model,
 %% ConfirmProductInstance
 %%
 
-confirm_product_instance(Key, AccessKey, Model,
+confirm_product_instance(Region, Key, AccessKey, Model,
 			 ProductCode,
 			 InstanceId
 			) ->
-    Xml = aws_ec2_xml:confirm_product_instance(Key, AccessKey,
+    Xml = aws_ec2_xml:confirm_product_instance(Region, Key, AccessKey,
 					       ProductCode,
 					       InstanceId),
     return_term(Xml, Model).
@@ -147,10 +147,10 @@ confirm_product_instance(Key, AccessKey, Model,
 %% CreateKeyPair
 %%
 
-create_key_pair(Key, AccessKey, Model,
+create_key_pair(Region, Key, AccessKey, Model,
 		KeyName
 	       ) ->
-    Xml = aws_ec2_xml:create_key_pair(Key, AccessKey,
+    Xml = aws_ec2_xml:create_key_pair(Region, Key, AccessKey,
 				      KeyName),
     return_term(Xml, Model).
 
@@ -158,11 +158,11 @@ create_key_pair(Key, AccessKey, Model,
 %% CreateSecurityGroup
 %%
 
-create_security_group(Key, AccessKey, Model,
+create_security_group(Region, Key, AccessKey, Model,
 		      GroupName,
 		      GroupDescription
 		     ) ->
-    Xml = aws_ec2_xml:create_security_group(Key, AccessKey,
+    Xml = aws_ec2_xml:create_security_group(Region, Key, AccessKey,
 					    GroupName,
 					    GroupDescription),
     return_term(Xml, Model).
@@ -170,19 +170,19 @@ create_security_group(Key, AccessKey, Model,
 %%
 %% CreateTags
 %%
-create_tags(Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
+create_tags(Region, Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
 	   ) ->
-    Xml = aws_ec2_xml:create_tags(Key, AccessKey, ResourceId_n, TagKeyValues_n),
+    Xml = aws_ec2_xml:create_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n),
     return_term(Xml, Model).
 
 %%
 %% DeleteKeyPair
 %%
 
-delete_key_pair(Key, AccessKey, Model,
+delete_key_pair(Region, Key, AccessKey, Model,
 		KeyName
 	       ) ->
-    Xml = aws_ec2_xml:delete_key_pair(Key, AccessKey,
+    Xml = aws_ec2_xml:delete_key_pair(Region, Key, AccessKey,
 				      KeyName),
     return_term(Xml, Model).
 
@@ -190,10 +190,10 @@ delete_key_pair(Key, AccessKey, Model,
 %% DeleteSecurityGroup
 %%
 
-delete_security_group(Key, AccessKey, Model,
+delete_security_group(Region, Key, AccessKey, Model,
 		      GroupName
 		     ) ->
-    Xml = aws_ec2_xml:delete_security_group(Key, AccessKey,
+    Xml = aws_ec2_xml:delete_security_group(Region, Key, AccessKey,
 					    GroupName),
     return_term(Xml, Model).
 
@@ -201,10 +201,10 @@ delete_security_group(Key, AccessKey, Model,
 %% DeregisterImage
 %%
 
-deregister_image(Key, AccessKey, Model,
+deregister_image(Region, Key, AccessKey, Model,
 		 ImageId
 		) ->
-    Xml = aws_ec2_xml:deregister_image(Key, AccessKey,
+    Xml = aws_ec2_xml:deregister_image(Region, Key, AccessKey,
 				       ImageId),
     return_term(Xml, Model).
 
@@ -212,11 +212,11 @@ deregister_image(Key, AccessKey, Model,
 %% DescribeImageAttribute
 %%
 
-describe_image_attribute(Key, AccessKey, Model,
+describe_image_attribute(Region, Key, AccessKey, Model,
 			 ImageId,
 			 Attribute
 			) ->
-    Xml = aws_ec2_xml:describe_image_attribute(Key, AccessKey,
+    Xml = aws_ec2_xml:describe_image_attribute(Region, Key, AccessKey,
 					       ImageId,
 					       Attribute),
     return_term(Xml, Model).
@@ -225,66 +225,66 @@ describe_image_attribute(Key, AccessKey, Model,
 %% DescribeImages
 %%
 
-describe_images(Key, AccessKey, Model
+describe_images(Region, Key, AccessKey, Model
 	       ) ->
-    describe_images(Key, AccessKey, Model,
+    describe_images(Region, Key, AccessKey, Model,
 		    [],
 		    [],
 		    []).
 
-describe_images(Key, AccessKey, Model,
+describe_images(Region, Key, AccessKey, Model,
 		ImageId_n,
 		Owner_n,
 		ExecutableBy_n
 	       ) ->
-    Xml = aws_ec2_xml:describe_images(Key, AccessKey,
+    Xml = aws_ec2_xml:describe_images(Region, Key, AccessKey,
 				      ImageId_n,
 				      Owner_n,
 				      ExecutableBy_n),
     return_term(Xml, Model).
 
-describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
+describe_images_by_tag(Region, Key, AccessKey, Model, OwnerAlias, Tags
 	       ) when (OwnerAlias == self) or (OwnerAlias == amazon) ->
-    Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, [atom_to_list(OwnerAlias)], Tags),
+    Xml = aws_ec2_xml:describe_images_by_tag(Region, Key, AccessKey, [atom_to_list(OwnerAlias)], Tags),
     return_term(Xml, Model);
 
-describe_images_by_tag(Key, AccessKey, Model, OwnerAlias, Tags
+describe_images_by_tag(Region, Key, AccessKey, Model, OwnerAlias, Tags
 	       ) when is_list(OwnerAlias) ->
-    Xml = aws_ec2_xml:describe_images_by_tag(Key, AccessKey, [OwnerAlias], Tags),
+    Xml = aws_ec2_xml:describe_images_by_tag(Region, Key, AccessKey, [OwnerAlias], Tags),
     return_term(Xml, Model).
 
 %%
 %% DescribeInstances
 %%
 
-describe_instance(Key, AccessKey, Model,
+describe_instance(Region, Key, AccessKey, Model,
 		  InstanceId
 		 ) ->
-    describe_instances(Key, AccessKey, Model,
+    describe_instances(Region, Key, AccessKey, Model,
 		       [InstanceId]).
 
-describe_instances(Key, AccessKey, Model)
--> describe_instances(Key, AccessKey, Model, []).
+describe_instances(Region, Key, AccessKey, Model)
+-> describe_instances(Region, Key, AccessKey, Model, []).
 
-describe_instances(Key, AccessKey, Model,
+describe_instances(Region, Key, AccessKey, Model,
 		   InstanceId_n
 		  ) ->
-    Xml = aws_ec2_xml:describe_instances(Key, AccessKey,
+    Xml = aws_ec2_xml:describe_instances(Region, Key, AccessKey,
 					 InstanceId_n),
     return_term(Xml, Model).
 
-describe_instances_by_tag(Key, AccessKey, Model, Tags) ->
-    Xml = aws_ec2_xml:describe_instances_by_tag(Key, AccessKey, Tags),
+describe_instances_by_tag(Region, Key, AccessKey, Model, Tags) ->
+    Xml = aws_ec2_xml:describe_instances_by_tag(Region, Key, AccessKey, Tags),
     return_term(Xml, Model).
 
 %%
 %% DescribeKeyPairs
 %%
 
-describe_key_pairs(Key, AccessKey, Model,
+describe_key_pairs(Region, Key, AccessKey, Model,
 		   KeyName_n
 		  ) ->
-    Xml = aws_ec2_xml:describe_key_pairs(Key, AccessKey,
+    Xml = aws_ec2_xml:describe_key_pairs(Region, Key, AccessKey,
 					 KeyName_n),
     return_term(Xml, Model).
 
@@ -292,10 +292,10 @@ describe_key_pairs(Key, AccessKey, Model,
 %% DescribeSecurityGroups
 %%
 
-describe_security_groups(Key, AccessKey, Model,
+describe_security_groups(Region, Key, AccessKey, Model,
 			 GroupName_n
 			) ->
-    Xml = aws_ec2_xml:describe_security_groups(Key, AccessKey,
+    Xml = aws_ec2_xml:describe_security_groups(Region, Key, AccessKey,
 					       GroupName_n),
     return_term(Xml, Model).
 
@@ -303,10 +303,10 @@ describe_security_groups(Key, AccessKey, Model,
 %% GetConsoleOutput
 %%
 
-get_console_output(Key, AccessKey, Model,
+get_console_output(Region, Key, AccessKey, Model,
 		   InstanceId
 		  ) ->
-    Xml = aws_ec2_xml:get_console_output(Key, AccessKey,
+    Xml = aws_ec2_xml:get_console_output(Region, Key, AccessKey,
 					 InstanceId),
     return_term(Xml, Model).
 
@@ -314,7 +314,7 @@ get_console_output(Key, AccessKey, Model,
 %% ModifyImageAttribute
 %%
 
-modify_image_attribute(Key, AccessKey, Model,
+modify_image_attribute(Region, Key, AccessKey, Model,
 		       ImageId,
 		       Attribute,
 		       OperationType,
@@ -322,7 +322,7 @@ modify_image_attribute(Key, AccessKey, Model,
 		       UserGroup_n,
 		       ProductCode_n
 		      ) ->
-    Xml = aws_ec2_xml:modify_image_attribute(Key, AccessKey,
+    Xml = aws_ec2_xml:modify_image_attribute(Region, Key, AccessKey,
 					     ImageId,
 					     Attribute,
 					     OperationType,
@@ -335,15 +335,15 @@ modify_image_attribute(Key, AccessKey, Model,
 %% RebootInstances
 %%
 
-reboot_instance(Key, AccessKey, Model,
+reboot_instance(Region, Key, AccessKey, Model,
 		InstanceId
 	       ) ->
-    reboot_instances(Key, AccessKey, Model, [InstanceId]).
+    reboot_instances(Region, Key, AccessKey, Model, [InstanceId]).
 
-reboot_instances(Key, AccessKey, Model,
+reboot_instances(Region, Key, AccessKey, Model,
 		 InstanceId_n
 		) ->
-    Xml = aws_ec2_xml:reboot_instances(Key, AccessKey,
+    Xml = aws_ec2_xml:reboot_instances(Region, Key, AccessKey,
 				       InstanceId_n),
     return_term(Xml, Model).
 
@@ -351,10 +351,10 @@ reboot_instances(Key, AccessKey, Model,
 %% RegisterImage
 %%
 
-register_image(Key, AccessKey, Model,
+register_image(Region, Key, AccessKey, Model,
 	       ImageLocation
 	      ) ->
-    Xml = aws_ec2_xml:register_image(Key, AccessKey,
+    Xml = aws_ec2_xml:register_image(Region, Key, AccessKey,
 				     ImageLocation),
     return_term(Xml, Model).
 
@@ -362,11 +362,11 @@ register_image(Key, AccessKey, Model,
 %% ResetImageAttribute
 %%
 
-reset_image_attribute(Key, AccessKey, Model,
+reset_image_attribute(Region, Key, AccessKey, Model,
 		      ImageId,
 		      Attribute
 		     ) ->
-    Xml = aws_ec2_xml:reset_image_attribute(Key, AccessKey,
+    Xml = aws_ec2_xml:reset_image_attribute(Region, Key, AccessKey,
 					    ImageId,
 					    Attribute),
     return_term(Xml, Model).
@@ -375,12 +375,12 @@ reset_image_attribute(Key, AccessKey, Model,
 %% RevokeSecurityGroupIngress
 %%
 
-revoke_security_group_ingress(Key, AccessKey, Model,
+revoke_security_group_ingress(Region, Key, AccessKey, Model,
 			      GroupName,
 			      SourceSecurityGroupName,
 			      SourceSecurityGroupOwnerId
 			     ) ->
-    Xml = aws_ec2_xml:revoke_security_group_ingress(Key, AccessKey,
+    Xml = aws_ec2_xml:revoke_security_group_ingress(Region, Key, AccessKey,
 						    GroupName,
 						    SourceSecurityGroupName,
 						    SourceSecurityGroupOwnerId,
@@ -390,14 +390,14 @@ revoke_security_group_ingress(Key, AccessKey, Model,
 						    null),
     return_term(Xml, Model).
 
-revoke_security_group_ingress(Key, AccessKey, Model,
+revoke_security_group_ingress(Region, Key, AccessKey, Model,
 			      GroupName,
 			      IpProtocol,
 			      FromPort,
 			      ToPort,
 			      CidrIp
 			     ) ->
-    Xml = aws_ec2_xml:revoke_security_group_ingress(Key, AccessKey,
+    Xml = aws_ec2_xml:revoke_security_group_ingress(Region, Key, AccessKey,
 						    GroupName,
 						    null,
 						    null,
@@ -411,10 +411,10 @@ revoke_security_group_ingress(Key, AccessKey, Model,
 %% RunInstances
 %%
 
-run_instance(Key, AccessKey, Model, ImageId)
--> run_instances(Key, AccessKey, Model, ImageId, 1, 1, null, [], null, null, "m1.small").
+run_instance(Region, Key, AccessKey, Model, ImageId) ->
+    run_instances(Region, Key, AccessKey, Model, ImageId, 1, 1, null, [], null, null, "m1.small", null).
 
-run_instances(Key, AccessKey, Model,
+run_instances(Region, Key, AccessKey, Model,
 	      ImageId,
 	      MinCount,
 	      MaxCount,
@@ -422,9 +422,10 @@ run_instances(Key, AccessKey, Model,
 	      SecurityGroup_n,
 	      UserData,
 	      AddressingType,
-	      InstanceType
+	      InstanceType,
+	      AvailabilityZone
 	     ) ->
-    Xml = aws_ec2_xml:run_instances(Key, AccessKey,
+    Xml = aws_ec2_xml:run_instances(Region, Key, AccessKey,
 				    ImageId,
 				    MinCount,
 				    MaxCount,
@@ -432,28 +433,29 @@ run_instances(Key, AccessKey, Model,
 				    SecurityGroup_n,
 				    UserData,
 				    AddressingType,
-				    InstanceType),
+				    InstanceType,
+				    AvailabilityZone),
     return_term(Xml, Model).
 
-start_instance(Key, AccessKey, Model, InstanceId) ->
-    Xml = aws_ec2_xml:start_instances(Key, AccessKey, [InstanceId]),
+start_instance(Region, Key, AccessKey, Model, InstanceId) ->
+    Xml = aws_ec2_xml:start_instances(Region, Key, AccessKey, [InstanceId]),
     return_term(Xml, Model).
 
-stop_instance(Key, AccessKey, Model, InstanceId) ->
-    Xml = aws_ec2_xml:stop_instances(Key, AccessKey, [InstanceId]),
+stop_instance(Region, Key, AccessKey, Model, InstanceId) ->
+    Xml = aws_ec2_xml:stop_instances(Region, Key, AccessKey, [InstanceId]),
     return_term(Xml, Model).
 
 %%
 %% TerminateInstances
 %%
 
-terminate_instance(Key, AccessKey, Model, InstanceId)
--> terminate_instances(Key, AccessKey, Model, [InstanceId]).
+terminate_instance(Region, Key, AccessKey, Model, InstanceId)
+-> terminate_instances(Region, Key, AccessKey, Model, [InstanceId]).
 
-terminate_instances(Key, AccessKey, Model,
+terminate_instances(Region, Key, AccessKey, Model,
 		    InstanceId_n
 		   ) ->
-    Xml = aws_ec2_xml:terminate_instances(Key, AccessKey,
+    Xml = aws_ec2_xml:terminate_instances(Region, Key, AccessKey,
 					  InstanceId_n),
     return_term(Xml, Model).
 
