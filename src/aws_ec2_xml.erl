@@ -85,19 +85,19 @@
 ec2_url(default) ->
     "https://ec2.amazonaws.com";
 
-ec2_url(us_west) ->
+ec2_url('us-west') ->
     "https://ec2.us-west-1.amazonaws.com";
 
-ec2_url(us_east) ->
+ec2_url('us-east') ->
     "https://ec2.us-east-1.amazonaws.com";
 
-ec2_url(eu_west) ->
+ec2_url('eu-west') ->
     "https://ec2.eu-west-1.amazonaws.com";
 
-ec2_url(ap_se) ->
+ec2_url('ap-southwest') ->
     "https://ec2.ap-southeast-1.amazonaws.com";
 
-ec2_url(ap_ne) ->
+ec2_url('ap-northeast') ->
     "https://ec2.ap-northeast-1.amazonaws.com".
 
 %% Construct the URL for accessing a web services from ec2.
