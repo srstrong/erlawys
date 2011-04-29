@@ -81,3 +81,4 @@
 -record('fps:Amount', {anyAttribs, 'CurrencyCode', 'Amount'}).
 -record('fps:StatusChange', {anyAttribs, 'Date', 'Status', 'Amount'}).
 -record('fps:TokenUsageLimit', {anyAttribs, 'Count', 'Amount', 'LastResetCount', 'LastResetAmount', 'LastResetTimeStamp'}).
+%% SRS
