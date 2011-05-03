@@ -49,9 +49,11 @@
 	 authorize_security_group_ingress/7,
 	 authorize_security_group_ingress/9,	
 	 confirm_product_instance/6,	
+	 create_image/6,
 	 create_key_pair/5,	
 	 create_security_group/6,	
 	 create_tags/6,
+	 delete_tags/6,
 	 delete_key_pair/5,	
 	 delete_security_group/5,
 	 deregister_image/5,
@@ -144,6 +146,16 @@ confirm_product_instance(Region, Key, AccessKey, Model,
     return_term(Xml, Model).
 
 %%
+%% CreateImage
+%%
+create_image(Region, Key, AccessKey, Model,
+	     InstanceId, 
+	     Name) ->
+    Xml = aws_ec2_xml:create_image(Region, Key, AccessKey, InstanceId, Name),
+
+    return_term(Xml, Model).
+
+%%
 %% CreateKeyPair
 %%
 
@@ -173,6 +185,14 @@ create_security_group(Region, Key, AccessKey, Model,
 create_tags(Region, Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
 	   ) ->
     Xml = aws_ec2_xml:create_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n),
+    return_term(Xml, Model).
+
+%%
+%% DeleteTags
+%%
+delete_tags(Region, Key, AccessKey, Model, ResourceId_n, TagKeyValues_n 
+	   ) ->
+    Xml = aws_ec2_xml:delete_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n),
     return_term(Xml, Model).
 
 %%
@@ -231,6 +251,16 @@ describe_images(Region, Key, AccessKey, Model
 		    [],
 		    [],
 		    []).
+
+describe_images(Region, Key, AccessKey, Model,
+		ImageId_n,
+		Owner,
+		ExecutableBy_n
+	       ) when is_atom(Owner) ->
+    describe_images(Region, Key, AccessKey, Model,
+		    ImageId_n,
+		    [atom_to_list(Owner)],
+		    ExecutableBy_n);
 
 describe_images(Region, Key, AccessKey, Model,
 		ImageId_n,

@@ -50,6 +50,7 @@
 	 authorize_security_group_ingress/6,	
 	 authorize_security_group_ingress/8,
 	 confirm_product_instance/5,   
+	 create_image/5,
 	 create_key_pair/4,	
 	 create_security_group/5,	
 	 delete_key_pair/4,	
@@ -73,7 +74,8 @@
 	 start_instances/4,
 	 stop_instances/4,
 	 terminate_instances/4,
-	 create_tags/5]).
+	 create_tags/5,
+	 delete_tags/5]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,6 +213,21 @@ confirm_product_instance(Region, Key, AccessKey,
     Url = ec2_url(Region, Key, Params),
     make_http_request(Url).
 
+
+%% CreateImage
+%%
+%% Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance that is 
+%% in either the running or stopped state
+
+create_image(Region, Key, AccessKey, InstanceId, Name) ->
+    Params = add_default_params(
+	       [{"Action", "CreateImage"},
+		{"InstanceId", InstanceId},
+		{"Name", Name}],
+	       AccessKey),
+    Url = ec2_url(Region, Key, Params),
+    make_http_request(Url).
+
 %% CreateKeyPair
 %%
 %% The CreateKeyPair operation creates a new 2048 bit RSA keypair and returns a
@@ -266,6 +283,29 @@ create_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n
 			      create_ec2_param_list("ResourceId", ResourceId_n),
 			      create_ec2_param_list("Tag", "Key", lists:map(fun({TagKey, _}) -> TagKey end, ExpandedTags)),
 			      create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue end, ExpandedTags))
+			     ]),
+	       AccessKey),
+    Url = ec2_url(Region, Key, Params),
+    make_http_request(Url).
+
+%% DeleteTags
+%%
+%% Deletes a specific set of tags from a specific set of resources. This call 
+%% is designed to follow a DescribeTags call. You first determine what tags
+%% a resource has, and then you call DeleteTags with the resource ID and the
+%% specific tags you want to delete.
+
+delete_tags(Region, Key, AccessKey, ResourceId_n, TagKeyValues_n 
+	   ) ->
+    ExpandedTags = [Tags || _Resources <- ResourceId_n, Tags <- TagKeyValues_n],
+    Params = add_default_params(
+	       lists:flatten([
+			      {"Action", "DeleteTags"},
+			      create_ec2_param_list("ResourceId", ResourceId_n),
+			      create_ec2_param_list("Tag", "Key", lists:map(fun({TagKey, _}) -> TagKey;
+									       (TagKey) -> TagKey end, ExpandedTags)),
+			      create_ec2_param_list("Tag", "Value", lists:map(fun({_, TagValue}) -> TagValue;
+										 (_TagKey) -> null end, ExpandedTags))
 			     ]),
 	       AccessKey),
     Url = ec2_url(Region, Key, Params),
