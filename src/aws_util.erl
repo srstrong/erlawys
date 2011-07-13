@@ -95,6 +95,7 @@ create_ec2_param_list_1(Name, [H|T], C) -> [{Name ++ "." ++ integer_to_list(C), 
 create_ec2_param_list_1(_, [], _) -> [].
 
 create_ec2_param_list_2(_, _, null, _) -> [];
+create_ec2_param_list_2(NamePrefix, NameSuffix, [null|T], C) -> create_ec2_param_list_2(NamePrefix, NameSuffix, T, C + 1);
 create_ec2_param_list_2(NamePrefix, NameSuffix, [H|T], C) -> [{NamePrefix ++ "." ++ integer_to_list(C) ++ "." ++ NameSuffix, H} | create_ec2_param_list_2(NamePrefix, NameSuffix, T, C + 1)];
 create_ec2_param_list_2(_, _, [], _) -> [].
 
