@@ -823,8 +823,8 @@ terminate_instances(Region, Key, AccessKey,
     make_http_request(Url).
 
 make_http_request(Url) ->
-    case ibrowse:send_req(Url, [], get) of
-	{ok, _Status, _Headers, Body} ->
+    case httpc:request(Url) of
+	{ok, {_Status, _Headers, Body}} ->
 	    Body;
 	Fail ->
 	    Fail
