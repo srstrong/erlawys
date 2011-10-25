@@ -1,4 +1,9 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ec2.amazonaws.com/doc/2010-08-31/" targetNamespace="http://ec2.amazonaws.com/doc/2010-08-31/" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	   xmlns:tns="http://ec2.amazonaws.com/doc/2010-08-31/" 
+	   targetNamespace="http://ec2.amazonaws.com/doc/2010-08-31/" 
+	   elementFormDefault="qualified">
+
       <xs:element name="CreateImage" type="tns:CreateImageType"/>
       <xs:complexType name="CreateImageType">
         <xs:sequence>

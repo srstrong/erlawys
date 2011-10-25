@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+      <xs:element name="Response" type="EC2ErrorResponseType"/>
+      
+      <xs:complexType name="EC2ErrorType">
+         <xs:sequence>
+	    <xs:element name="Code" type="xs:string"/>
+	    <xs:element name="Message" type="xs:string"/>
+	 </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="EC2ErrorsType">
+         <xs:sequence>
+	    <xs:element name="Error" type="EC2ErrorType" maxOccurs="unbounded"/>
+	 </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="EC2ErrorResponseType">
+         <xs:sequence>
+	    <xs:element name="Errors" type="EC2ErrorsType"/>
+	    <xs:element name="RequestID" type="xs:string"/>
+	 </xs:sequence>
+      </xs:complexType>
+
+</xs:schema>
