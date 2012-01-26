@@ -90,6 +90,9 @@ ec2_url(default) ->
 ec2_url('us-west') ->
     "https://ec2.us-west-1.amazonaws.com";
 
+ec2_url('us-west-2') ->
+    "https://ec2.us-west-2.amazonaws.com";
+
 ec2_url('us-east') ->
     "https://ec2.us-east-1.amazonaws.com";
 
